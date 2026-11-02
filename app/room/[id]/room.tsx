@@ -1,6 +1,6 @@
 "use client"
 
-import { GameRespond, Player, Room, TeamReq } from "@/lib/types"
+import { GameRespond, Player, Room, Team, TeamReq } from "@/lib/types"
 import Image from "next/image";
 import { titleCase, teamReadyCheck } from "@/lib/helpers";
 import { useEffect, useState, useRef } from "react";
@@ -101,9 +101,12 @@ export default function GameRoom({room, player, creator, createTeam, joinTeam, p
         
     }    
 
-    function ready(teamId: string, value: boolean, playerId: string){
-        playerReady(playerId, currRoom.id, !currRoom.ready_players[playerId]);
-        teamReady(currRoom.id, teamId, value);
+    async function ready(team: Team, playerId: string){
+        const ready = await playerReady(playerId, currRoom.id, !currRoom.ready_players[playerId]);
+        console.log("READY: ", ready)
+        const value = teamReadyCheck(team, ready.ready_players!);
+        teamReady(currRoom.id, team.id!, value);
+        
     }
 
     if (!player) {
@@ -167,7 +170,7 @@ export default function GameRoom({room, player, creator, createTeam, joinTeam, p
                                                     <p>{tplayer.name}:</p><p>{currRoom.ready_players[tplayer.id!] ? "Ready" : "Waiting"}</p>
                                                 </div>
                                                 <div className="w-fit mx-auto">
-                                                    {tplayer.id === player.id && <button onClick={() => ready(team.id!, teamReadyCheck(team, currRoom.ready_players), tplayer.id!)
+                                                    {tplayer.id === player.id && <button onClick={() => ready(team, tplayer.id!)
                                                     } className="shadow-[var(--shadow)] bg-black/30 rounded-2xl px-3 py-2 font-bold">{currRoom.ready_players[player.id!] ? "Ready" : "Not Ready"}</button>}
                                                     {tplayer.id !== player.id && <button onClick={() => kickPlayer(room.id, tplayer.id!)} className="shadow-[var(--shadow-sm)] bg-red-500 text-white rounded-2xl px-1 font-bold">Kick</button>}
                                                 </div>
