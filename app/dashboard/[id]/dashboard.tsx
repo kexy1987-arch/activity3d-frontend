@@ -57,7 +57,7 @@ export default function Dashboard({player, createRoom, deleteRoom, joinLobby}: P
                             style={{ height: "100px", width: "100px", boxShadow: "var(--shadow)", borderRadius: "7px" }}
                         />
                         <div>
-                            <p className="text-center text-lg">{player.first_login ? "Welcome" : "Welcome back"}, {titleCase(player.name)}!</p>
+                            <p className="text-center text-lg">{!player.first_login ? "Welcome" : "Welcome back"}, {titleCase(player.name)}!</p>
                             <p className="text-center text-sm">Last visit {player.last_seen ? microsecondDateToString(player.last_seen) : ""}</p>
                         </div>
                     </div>

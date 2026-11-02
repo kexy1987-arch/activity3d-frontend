@@ -116,7 +116,7 @@ export default function GameRoom({room, player, creator, createTeam, joinTeam, p
 
 
     return(
-        <div>
+        <div className="flex justify-center">
             <MsgBar msg={msg} setMsg={setMsg} />
             <div ref={mainRef} className="space-y-15 translate-all flip-in p-2">
                 
