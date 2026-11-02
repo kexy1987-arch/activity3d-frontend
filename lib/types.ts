@@ -40,7 +40,7 @@ export type Room = {
         lobby: Player[];
         countdown_running: boolean;
         countdown_seconds: number;
-        ready_players: Player[];
+        ready_players: Record<string, boolean>;
 }
 
 export type RoomRes = {

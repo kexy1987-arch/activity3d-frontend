@@ -5,28 +5,60 @@ type Props = {
     setMsg: (msg: string) => void
 }
 
+type Toast = {
+    id: number;
+    text: string;
+    visible: boolean;
+};
+
+
 export default function MsgBar({msg, setMsg}: Props){
 
-    const [message, setMessage] = useState<string | null>(null);
-    const [showMsg, setShowMsg] = useState<boolean>(false);
+    const [messages, setMessages] = useState<Toast[]>([]);
 
-    useEffect(() => {if(!msg) return;
-    setMessage(msg);
-    setShowMsg(true);
-    setTimeout(() => {
-        setShowMsg(false);
-    }, 6200)
-    setTimeout(() => {
-        setMessage(null);
+    useEffect(() => {
+        if (!msg) return;
+
+        const id = Date.now();
+
+        setMessages(prev => [...prev, { id, text: msg, visible: true }]);
+
         setMsg("");
-    }, 7000)}, [msg])
+    }, [msg]);
 
-    return(
-        <div>
-            {message && <div className={`fixed top-0 left-0 z-1 w-full h-fit p-2 bg-yellow-300/70 transition-all duration-700 ${showMsg ? "opacity-100": "opacity-0"}`}>
-                {message}
-            </div>}
+    useEffect(() => {
+        messages.forEach(m => {
+            if (m.visible) {
+                setTimeout(() => {
+                    setMessages(prev =>
+                        prev.map(x =>
+                            x.id === m.id ? { ...x, visible: false } : x
+                        )
+                    );
+                }, 6000);
+
+                setTimeout(() => {
+                    setMessages(prev => prev.filter(x => x.id !== m.id));
+                }, 7000);
+            }
+        });
+    }, [messages]);
+
+
+
+    return (
+        <div className={`fixed top-0 left-0 w-full z-[9999] space-y-2 p-2 ${messages.length > 0 ? "bg-red-500" : ""} transition-all`}>
+            {messages.map(m => (
+                <div
+                    key={m.id}
+                    className={`text-red-500 font-bold w-full p-2 bg-yellow-300/90 
+                            transition-all duration-700
+                            ${m.visible ? "opacity-100" : "opacity-0"}`}
+                >
+                    {m.text}
+                </div>
+            ))}
         </div>
-        
-    )
+    );
+
 }

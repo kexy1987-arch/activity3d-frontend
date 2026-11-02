@@ -38,6 +38,7 @@ export default async function Page({params}: Props){
 
     async function joinLobby(room_id: string, player: Player): Promise<GameRespond>{
         "use server"
+            console.log("PLAYER_JOIN:", player)
             const join = await fetch(`${backendUrl}/lobby/${room_id}/join`,{
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
