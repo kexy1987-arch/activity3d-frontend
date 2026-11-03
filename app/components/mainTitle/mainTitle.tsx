@@ -3,7 +3,7 @@ export default function MainTitle(){
     return(
         
             <div className="flex justify-center">
-                <h1 className="text-7xl w-[300px] text-yellow-200 font-bold relative text-shadow-[10px_10px_30px_gold]">
+                <h1 className="text-7xl w-[300px] font-bold relative title-letters">
                     <span className="absolute top-4 left-0 rotate-[-10deg]">A</span>
                     <span className="absolute top-2 left-13 rotate-[-7deg]">c</span>
                     <span className="absolute top-1 left-24 rotate-[-4deg]">t</span>

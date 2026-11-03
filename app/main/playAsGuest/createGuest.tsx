@@ -1,7 +1,7 @@
 "use client"
 
 import { Player } from "@/lib/types"
-import { useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation";
 
 type Props = {
@@ -11,6 +11,7 @@ type Props = {
 export default function CreateGuest({createPlayer}: Props){
     const tagRef = useRef<HTMLInputElement>(null);
     const router = useRouter();
+    const [show, setShow] = useState(false);
 
     async function handlePlay(){
         const tag = tagRef.current;
@@ -31,8 +32,16 @@ export default function CreateGuest({createPlayer}: Props){
         }
     }
 
+    useEffect(() => {
+        setShow(true);
+    },[])
+
     return(
-        <div className="flex flex-col items-center gap-[10vh] p-10">
+        <div className={`flex flex-col items-center gap-[10vh] p-10
+          transition-all duration-2000 ease-out
+          ${show ? "opacity-100" : "opacity-0"}
+        `}
+        >
             <h1 className="text-3xl [text-shadow:2px_2px_5px_black]">Play as guest</h1>
             <div className="flex flex-col gap-3 bg-blue-300 text-black p-5 rounded-xl shadow-[var(--shadow)] w-fit m-auto items-center">
                 <label className="font-bold [text-shadow:2px_2px_5px_rgba(0,0,0,0.673)]">Enter Gamer Tag</label>
