@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation";
 
 type Props = {
-    createPlayer: (player: Player) => Player
+    createPlayer: (player: Player) => Promise<Player>
 }
 
 export default function CreateGuest({createPlayer}: Props){

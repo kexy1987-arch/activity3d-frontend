@@ -116,6 +116,7 @@ body {
   color: #ff0000;
   animation: letter-bounce 0.6s infinite alternate;
   text-shadow: 4px 4px 20px rgba(0, 0, 0, 0.822);
+  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif
 }
 
 .title-letters span:nth-child(2) {
@@ -158,4 +159,13 @@ body {
     transform: translateY(-8px);
     opacity: 1;
   }
+}
+
+button {
+  transition: all 0.3s ease;
+  transform: scale(0.8)
+}
+
+button:hover{
+  transform: scale(0.9)
 }

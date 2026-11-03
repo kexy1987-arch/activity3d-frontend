@@ -4,9 +4,9 @@ import { GameRespond, Player, Room, Team, TeamReq } from "@/lib/types"
 import Image from "next/image";
 import { titleCase, teamReadyCheck } from "@/lib/helpers";
 import { useEffect, useState, useRef } from "react";
-import NewTeam from "@/app/components/newTeam/newTeam";
+import NewTeam from "@/app/components/room/newTeam/newTeam";
 import { useRouter } from "next/navigation";
-import Countdown from "@/app/components/countdown/countdown";
+import Countdown from "@/app/components/room/countdown/countdown";
 import ErrorModal from "@/app/components/error/error";
 import MsgBar from "@/app/components/msgBar/msgBar";
 
@@ -130,12 +130,14 @@ export default function GameRoom({room, player, creator, createTeam, joinTeam, p
                 <div className="flex flex-col items-center space-y-5">
                     <div className="flex flex-wrap w-full">
                         {currRoom.lobby.length > 0 && currRoom.lobby.map(newplayer => (
-                            <div ref={newplayer && player.id === newplayer.id ? playerCardRef : null} key={newplayer.id} className="flex flex-col items-center w-20 mx-2 shadow-[var(--shadow)] rounded bg-black/30 overflow-hidden shrink">
+                            <div ref={newplayer && player.id === newplayer.id ? playerCardRef : null} key={newplayer.id} className="flex flex-col items-center w-20 h-26 mx-2 shadow-[var(--shadow)] rounded bg-black/30 overflow-hidden shrink">
                                 <Image
                                     src={newplayer.avatar_url ? newplayer.avatar_url : "/question-mark-vector-icon.jpg"}
                                     alt="Avatar"
                                     width={100}
                                     height={100}
+                                    style={{width: "130px", height: "130px", overflow: "hidden"}}
+                                    className="object-contain"
                                 />
                                 <strong>{titleCase(newplayer.name)}</strong>
                             </div>

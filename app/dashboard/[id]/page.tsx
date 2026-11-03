@@ -4,7 +4,6 @@ import { GameRespond, Player, RoomCreateRequest, RoomRes } from "@/lib/types"
 import Dashboard from "./dashboard"
 import ErrorModal from "@/app/components/error/error"
 
-
 type Props = {
     params: { id: string }
 }
@@ -12,6 +11,7 @@ type Props = {
 export default async function Page({params}: Props){
     const {id} = await params
     const backendUrl = process.env.BACKEND_URL
+
 
     async function createRoom(room: RoomCreateRequest): Promise<RoomRes>{
         "use server"
@@ -38,15 +38,27 @@ export default async function Page({params}: Props){
 
     async function joinLobby(room_id: string, player: Player): Promise<GameRespond>{
         "use server"
-            console.log("PLAYER_JOIN:", player)
+            
             const join = await fetch(`${backendUrl}/lobby/${room_id}/join`,{
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify(player)
             });
 
-            const joined = await join.json()
+            const joined = await join.json();
             return joined;
+    }
+
+    async function playerUpdate(formData: FormData){
+        "use server"
+
+        const updateReq = await fetch(`${backendUrl}/players/update`, {
+            method: "POST",
+            body: formData
+        });
+
+        const updateRes = await updateReq.json();
+        return updateRes;
     }
     
     const playerReq = await fetch(`${process.env.BACKEND_URL}/players/${id}`);
@@ -58,6 +70,12 @@ export default async function Page({params}: Props){
     }
 
     return (
-                <Dashboard player={player} createRoom={createRoom} deleteRoom={deleteRoom} joinLobby={joinLobby}/>
+                <Dashboard 
+                player={player} 
+                createRoom={createRoom} 
+                deleteRoom={deleteRoom} 
+                joinLobby={joinLobby}
+                playerUpdate={playerUpdate}
+                />
     )
 }

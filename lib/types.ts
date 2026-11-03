@@ -58,8 +58,9 @@ export type Team = {
 
 export type GameRespond = {
     message: string;
-    room: Room,
-    ready_players?: Record<string, boolean>
+    room: Room;
+    ready_players?: Record<string, boolean>;
+    player?: Player;
 }
 
 export type TeamReq = {
