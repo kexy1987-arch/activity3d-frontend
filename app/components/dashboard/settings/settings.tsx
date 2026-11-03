@@ -8,7 +8,6 @@ type Props = {
 }
 
 export default function Settings({player, playerUpdate, setPlayer, setMsg}: Props){
-
     async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>){
         e.preventDefault();
         const form = new FormData(e.currentTarget);
@@ -21,6 +20,8 @@ export default function Settings({player, playerUpdate, setPlayer, setMsg}: Prop
         }
         setMsg(updated.message);
     }
+
+    
 
     return(
         <div className="border p-7 bg-black/70 rounded-xl shadow-[var(--shadow)] w-90 space-y-4">

@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 
 import MainTitle from "@/app/components/mainTitle/mainTitle"
 import { Player, RoomCreateRequest, Room, RoomRes, GameRespond } from "@/lib/types"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import { titleCase, microsecondDateToString } from "@/lib/helpers"
 import NewGame from "@/app/components/dashboard/newGame/newGame";
@@ -28,6 +28,8 @@ export default function Dashboard({player, createRoom, deleteRoom, joinLobby, pl
     const [msg, setMsg] = useState("");
     const [showSettings, setShowSettings] = useState<boolean>(false);
     const [currPlayer, setCurrPlayer] = useState<Player>(player);
+    const settingsRef = useRef<HTMLDivElement>(null);
+    const settingsBtnRef = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
         async function newGame(){
@@ -43,15 +45,26 @@ export default function Dashboard({player, createRoom, deleteRoom, joinLobby, pl
         
     }, [newGameReq])
 
+    function outsideClick(e: PointerEvent){
+        const target = e.target as HTMLElement;
+        const settings = settingsRef.current;
+        const btn = settingsBtnRef.current;
+        if((settings && !settings.contains(target)) && (btn && !btn.contains(target))){
+            setShowSettings(false);
+        }
+    }
+
     useEffect(() => {
         setShow(true)
-        console.log(currPlayer)
+        document.addEventListener("click", outsideClick)
+        return () => document.removeEventListener("click", outsideClick)
+        
     }, []);
 
     return(
         <div>
             <MsgBar msg={msg} setMsg={setMsg}/>
-            <div className={`absolute top-[50%] left-[50%] ${showSettings ? "translate-x-[-50%] opacity-100": "translate-x-5 opacity-0 scale-0"} transition-all z-10`}>
+            <div ref={settingsRef} className={`absolute top-[50%] left-[50%] ${showSettings ? "translate-[-50%] opacity-100": "translate-x-5 opacity-0 scale-0"} transition-all z-10`}>
                 <Settings player={currPlayer} playerUpdate={playerUpdate} setPlayer={setCurrPlayer} setMsg={setMsg}/>
             </div>            
             <div className={`pt-5 transition-all duration-700 ease-out ${show ? "translate-x-0 opacity-100" : "translate-x-20 opacity-0"}`}>
@@ -76,7 +89,7 @@ export default function Dashboard({player, createRoom, deleteRoom, joinLobby, pl
                             </div>
                         </div>
                         <div>
-                            <button onClick={() => setShowSettings(!showSettings)}>
+                            <button ref={settingsBtnRef} onClick={() => setShowSettings(!showSettings)}>
                                 <Image
                                 src="/Setting.svg"
                                 width={60}

@@ -1,6 +1,7 @@
 import { Team } from "./types";
 
 export function titleCase(str: string): string {
+    if(!str) return "";
     const splitted = str.split(" ");
     const titleCaseArray = splitted.map(str => str[0].toUpperCase() + str.slice(1));
 
