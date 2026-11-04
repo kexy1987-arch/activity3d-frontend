@@ -31,45 +31,48 @@ export default function GameRoom({room, player, creator, createTeam, joinTeam, p
     const playerCardRef = useRef<HTMLDivElement>(null);
     const mainRef = useRef<HTMLDivElement>(null);
     const [msg, setMsg] = useState("");
+    const [activePlayerIds, setActivePlayerIds] = useState<string[]>([]);
 
     useEffect(() => {
             const main = mainRef.current;
             main?.classList.remove("flip-out");
             main?.classList.add("flip-in");
-            const ws = new WebSocket(`ws://localhost:8000/ws/rooms/${currRoom.id}`);
+            const ws = new WebSocket(`ws://localhost:8000/ws/rooms/${currRoom.id}?player_id=${player.id}`);
             ws.onmessage = (event) => {
                 const data = JSON.parse(event.data);
                 console.log("WS JSON:", data)
                 if(data) {    
                     if(data.message){
                         setMsg(data.message);
-                    }           
+                    };          
                     if(data.event){
                         console.log(data.event);
-                    }
+                    };
                     if (data.event === "player_kicked"){
                         if(data.player_id === player.id){
                             router.push(`/dashboard/${player.id}`);
-                        }
-                    }
+                        };
+                    };
                     if(data.room){
                         const updatedRoom: Room = data.room;
                         setCurrRoom(updatedRoom);
+                    };
+                    if(data.event === "countdown_started"){
+                        setCountdownValue(data.seconds)
+                        setShowCountdown(true);
+                    };
+                    if(data.event === "countdown_tick"){
+                        setCountdownValue(prev => prev - data.value);
+                    };
+                    if (data.event === "game_started") {
+                        router.push(`/game/${currRoom.id}?player=${player.id}`)
+                    }; 
+                    if (data.event === "countdown_stopped"){
+                        setShowCountdown(false);
+                    };
+                    if(data.event === "player_joined" || data.event === "player_disconnected"){
+                        setActivePlayerIds(data.active_player_ids);                        
                     }
-                  if(data.event === "countdown_started"){
-                      setCountdownValue(data.seconds)
-                      setShowCountdown(true);
-                      
-                  }
-                  if(data.event === "countdown_tick"){
-                      setCountdownValue(prev => prev - data.value);
-                  }
-                 if (data.event === "game_started") {
-                     router.push(`/game`)
-                 } 
-                  if (data.event === "countdown_stopped"){
-                      setShowCountdown(false);
-                  }
                 }
             };
     
@@ -130,7 +133,8 @@ export default function GameRoom({room, player, creator, createTeam, joinTeam, p
                 <div className="flex flex-col items-center space-y-5">
                     <div className="flex flex-wrap w-full">
                         {currRoom.lobby.length > 0 && currRoom.lobby.map(newplayer => (
-                            <div ref={newplayer && player.id === newplayer.id ? playerCardRef : null} key={newplayer.id} className="flex flex-col items-center w-20 h-26 mx-2 shadow-[var(--shadow)] rounded bg-black/30 overflow-hidden shrink">
+                            <div ref={newplayer && player.id === newplayer.id ? playerCardRef : null} key={newplayer.id} className="relative flex flex-col items-center w-20 h-26 mx-2 shadow-[var(--shadow)] rounded bg-black/30 shrink">
+                                <div className={`absolute right-[-4px] bottom-[-4px] ${activePlayerIds.includes(newplayer.id!) ? "bg-green-400" : "bg-red-400"} w-[15px] h-[15px] rounded-2xl`}></div>
                                 <Image
                                     src={newplayer.avatar_url ? newplayer.avatar_url : "/question-mark-vector-icon.jpg"}
                                     alt="Avatar"
@@ -140,6 +144,7 @@ export default function GameRoom({room, player, creator, createTeam, joinTeam, p
                                     className="object-contain"
                                 />
                                 <strong>{titleCase(newplayer.name)}</strong>
+                                {newplayer.id !== player.id && <button onClick={() => kickPlayer(room.id, newplayer.id!)} className="absolute top-[-10px] right-[-10px] shadow-[var(--shadow-sm)] bg-red-500 text-white rounded-2xl px-1 font-bold">Kick</button>}
                             </div>
                         ))}
                     </div>
@@ -166,17 +171,18 @@ export default function GameRoom({room, player, creator, createTeam, joinTeam, p
                                                 {team.ready ? "Ready" : "Not Ready"}
                                             </span>
                                         </div>
-                                        {team.players.length > 0 && team.players.map((tplayer, i) => (
-                                            <div key={tplayer.id! + i} className="text-black">
-                                                <div className="grid grid-cols-2 p-1">
-                                                    <p>{tplayer.name}:</p><p>{currRoom.ready_players[tplayer.id!] ? "Ready" : "Waiting"}</p>
+                                        {currRoom.ready_players && team.players.length > 0 && team.players.map((tplayer, i) => (
+                                            <div key={tplayer.id! + i} className="text-black relative border rounded-xl p-2 flex flex-col">
+                                                <div className={`absolute right-[-4px] bottom-[-4px] ${activePlayerIds.includes(tplayer.id!) ? "bg-green-400" : "bg-red-400"} w-[15px] h-[15px] rounded-2xl`}></div>
+                                                <div className="p-1 flex flex-col items-center">
+                                                    <strong>{tplayer.name}</strong>
+                                                    <p>{currRoom?.ready_players?.[tplayer.id!] ? "Ready" : "Waiting"}</p>
                                                 </div>
                                                 <div className="w-fit mx-auto">
                                                     {tplayer.id === player.id && <button onClick={() => ready(team, tplayer.id!)
                                                     } className="shadow-[var(--shadow)] bg-black/30 rounded-2xl px-3 py-2 font-bold">{currRoom.ready_players[player.id!] ? "Ready" : "Not Ready"}</button>}
                                                     {tplayer.id !== player.id && <button onClick={() => kickPlayer(room.id, tplayer.id!)} className="shadow-[var(--shadow-sm)] bg-red-500 text-white rounded-2xl px-1 font-bold">Kick</button>}
                                                 </div>
-                                                <hr className="mt-2"></hr>
                                             </div>
                                         ))}
                                         <button onClick={() => join(team.id!)} className="bg-blue-500 px-2 rounded-2xl shadow-[var(--shadow-sm)]">Join</button>
