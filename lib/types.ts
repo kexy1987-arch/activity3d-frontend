@@ -64,7 +64,13 @@ export type GameRespond = {
 }
 
 export type TeamReq = {
-    color: string,
-    player: Player,
+    color: string;
+    player: Player;
     ready: boolean
+}
+
+export type RoomMsg = {
+    player_name: string;
+    message: string;
+    avatar_url: string
 }

@@ -47,7 +47,7 @@ export default function MsgBar({msg, setMsg}: Props){
 
 
     return (
-        <div className={`fixed top-0 left-0 w-full z-[9999] space-y-2 p-2 ${messages.length > 0 ? "bg-red-500" : ""} transition-all`}>
+        <div className={`fixed top-0 left-0 w-full z-[50] space-y-2 p-2 ${messages.length > 0 ? "bg-red-500" : ""} transition-all`}>
             {messages.map(m => (
                 <div
                     key={m.id}

@@ -1,6 +1,6 @@
 "use server"
 
-import { GameRespond, Player, Room, TeamReq } from "@/lib/types";
+import { GameRespond, Player, Room, RoomMsg, TeamReq } from "@/lib/types";
 import GameRoom from "./room"
 import ErrorModal from "@/app/components/error/error";
 import { redirect } from "next/navigation";
@@ -30,6 +30,8 @@ export default async function Page({params, searchParams}: Props){
     const player = await playerReq.json();
     const creatorReq = await fetch(`${backendUrl}/players/${room.creator_id}`);
     const creator = await creatorReq.json();
+
+    const messages = await getMessages(room_id);
 
     if(!player){
         return(<ErrorModal msg="Player not in the room."/>)
@@ -107,8 +109,28 @@ export default async function Page({params, searchParams}: Props){
         return teamReadyRes
     }
 
-    async function gameStart(roomId: string){
-        console.log(`${roomId} start the game.`);
+    async function getMessages(roomId: string): Promise<RoomMsg[]> {
+        const messagesReq = await fetch(`${backendUrl}/rooms/messages/${roomId}`)
+        const messagesRes = await messagesReq.json();
+
+        if(messagesRes.ok){
+            return messagesRes.messages;
+        }
+
+        console.log(messagesRes.error);
+        return [];        
+    }
+
+    async function sendMessage(roomId: string, msg:RoomMsg): Promise<GameRespond>{
+        "use server"
+        const sendReq = await fetch(`${backendUrl}/rooms/message/${roomId}`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(msg)
+        })
+
+        const sendRes = await sendReq.json()
+        return sendRes;
     }
 
     return(
@@ -123,6 +145,8 @@ export default async function Page({params, searchParams}: Props){
                 leaveRoom={leaveRoom}
                 kickPlayer={kickPlayer}
                 teamReady={teamReady}
+                messages={messages}
+                sendMessage={sendMessage}
             />
         </Suspense>
         

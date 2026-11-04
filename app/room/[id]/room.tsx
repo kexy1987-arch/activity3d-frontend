@@ -1,6 +1,6 @@
 "use client"
 
-import { GameRespond, Player, Room, Team, TeamReq } from "@/lib/types"
+import { GameRespond, Player, Room, Team, TeamReq, RoomMsg } from "@/lib/types"
 import Image from "next/image";
 import { titleCase, teamReadyCheck } from "@/lib/helpers";
 import { useEffect, useState, useRef } from "react";
@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import Countdown from "@/app/components/room/countdown/countdown";
 import ErrorModal from "@/app/components/error/error";
 import MsgBar from "@/app/components/msgBar/msgBar";
+import Messages from "@/app/components/room/messages/messages";
 
 type Props = {
     room: Room;
@@ -20,9 +21,11 @@ type Props = {
     leaveRoom: (roomId: string, player: Player) => Promise<GameRespond>;
     kickPlayer: (roomId: string, playerId: string) => Promise<GameRespond>;
     teamReady: (roomId: string, teamId: string, value: boolean) => Promise<GameRespond>;
+    messages: RoomMsg[];
+    sendMessage: (roomId: string, msg: RoomMsg) => Promise<GameRespond>;
 }
 
-export default function GameRoom({room, player, creator, createTeam, joinTeam, playerReady, leaveRoom, kickPlayer, teamReady}: Props){
+export default function GameRoom({room, player, creator, createTeam, joinTeam, playerReady, leaveRoom, kickPlayer, teamReady, messages, sendMessage}: Props){
     const [currRoom, setCurrRoom] = useState<Room>(room);
     const [showNewTeam, setShowNowTeam] = useState<boolean>(false);
     const router = useRouter()
@@ -32,6 +35,7 @@ export default function GameRoom({room, player, creator, createTeam, joinTeam, p
     const mainRef = useRef<HTMLDivElement>(null);
     const [msg, setMsg] = useState("");
     const [activePlayerIds, setActivePlayerIds] = useState<string[]>([]);
+    const [roomMessages, setRoomMessages] = useState<RoomMsg[]>(messages);
 
     useEffect(() => {
             const main = mainRef.current;
@@ -71,7 +75,10 @@ export default function GameRoom({room, player, creator, createTeam, joinTeam, p
                         setShowCountdown(false);
                     };
                     if(data.event === "player_joined" || data.event === "player_disconnected"){
-                        setActivePlayerIds(data.active_player_ids);                        
+                        setActivePlayerIds(data.active_player_ids);
+                    };
+                    if(data.event === "new_message"){
+                        setRoomMessages(prev => [...prev, data.room_message]);
                     }
                 }
             };
@@ -120,20 +127,20 @@ export default function GameRoom({room, player, creator, createTeam, joinTeam, p
 
     return(
         <div className="flex justify-center">
+            <Messages messages={roomMessages}/>
             <MsgBar msg={msg} setMsg={setMsg} />
-            <div ref={mainRef} className="space-y-15 translate-all flip-in p-2">
-                
+            {showCountdown && <div className="w-full h-15 rounded-xl p-3 bg-black/50 absolute top-20 left-[50%] translate-x-[-50%] z-[9999]">
+                <Countdown countdownValue={countdownValue} />
+            </div>}
+            <div ref={mainRef} className="space-y-15 translate-all flip-in p-2">                
                 <div className="text-center text-xl max-w-full pt-3">
                     <h1>Room name: <strong className="text-green-800">{currRoom.name}</strong></h1>
                     <h2>Dear <span className="text-blue-800">{player.name}</span>, welcome in <span className="text-red-500">{creator}'s</span> room.</h2>
                 </div>
-                {showCountdown && <div className="w-full h-15 absolute top-20 left-[50%] translate-x-[-50%]">
-                    <Countdown countdownValue={countdownValue} />
-                </div>}
                 <div className="flex flex-col items-center space-y-5">
                     <div className="flex flex-wrap w-full">
                         {currRoom.lobby.length > 0 && currRoom.lobby.map(newplayer => (
-                            <div ref={newplayer && player.id === newplayer.id ? playerCardRef : null} key={newplayer.id} className="relative flex flex-col items-center w-20 h-26 mx-2 shadow-[var(--shadow)] rounded bg-black/30 shrink">
+                            <div ref={newplayer && player.id === newplayer.id ? playerCardRef : null} key={newplayer.id} className="relative flex flex-col items-center w-20 max-h-26 mx-2 shadow-[var(--shadow)] rounded bg-black/30 shrink">
                                 <div className={`absolute right-[-4px] bottom-[-4px] ${activePlayerIds.includes(newplayer.id!) ? "bg-green-400" : "bg-red-400"} w-[15px] h-[15px] rounded-2xl`}></div>
                                 <Image
                                     src={newplayer.avatar_url ? newplayer.avatar_url : "/question-mark-vector-icon.jpg"}
