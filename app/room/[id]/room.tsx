@@ -70,7 +70,7 @@ export default function GameRoom({room, player, creator, createTeam, joinTeam, p
                         setCountdownValue(prev => prev - data.value);
                     };
                     if (data.event === "game_started") {
-                        router.push(`/game/${currRoom.id}?player=${player.id}`)
+                        router.push(`/game/${currRoom.id}?playerId=${player.id}`)
                     }; 
                     if (data.event === "countdown_stopped"){
                         setShowCountdown(false);
