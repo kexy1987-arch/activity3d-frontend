@@ -26,6 +26,7 @@ export default function Messages({messages, sendMessage, roomId, player}: Props)
         y: "top-[-250px]"
     });
     const chatRef = useRef<HTMLInputElement>(null);
+    const scrollRef = useRef<HTMLDivElement>(null);
 
     function onMouseDown(e: React.MouseEvent) {
         setDragging(true);
@@ -110,7 +111,20 @@ export default function Messages({messages, sendMessage, roomId, player}: Props)
             }
         }
         sendMessage(roomId, roomMsg);
+        chat.value = ""
     }
+
+    function handleMsgKeyDown(e: React.KeyboardEvent<HTMLInputElement>){
+        if(e.key === "Enter"){
+            handleSend();
+        }
+    }
+
+    useEffect(() => {
+        if (!scrollRef.current) return;
+
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }, [messages, showMsg])
 
     return(
         <div className={`flex flex-col fixed z-[50]`} style={{left: pos.x, top: pos.y}}>
@@ -132,7 +146,7 @@ export default function Messages({messages, sendMessage, roomId, player}: Props)
                         shadow-[var(--shadow)]
                         `}
                         >
-                    <div className="mb-30 h-fit max-h-50 overflow-scroll scrollbar-none">
+                    <div ref={scrollRef} className="mb-30 h-fit max-h-50 overflow-scroll scrollbar-none">
                         {messages.map((msg, i) => (
                             <div key={i} className="w-[95%] mx-auto flex items-center gap-5 m-2">
                                 <div>
@@ -154,8 +168,7 @@ export default function Messages({messages, sendMessage, roomId, player}: Props)
                         ))}
                     </div>                    
                     <div className="absolute bottom-1 flex w-full justify-center">
-                        <button className="bg-white w-8 h-8 rounded-2xl text-black p-1">+</button>
-                        <input ref={chatRef} type="text" className="border rounded-2xl w-30 px-2 bg-white text-black"/>
+                        <input onKeyDown={(e) => handleMsgKeyDown(e)} ref={chatRef} type="text" className="border rounded-2xl w-30 px-2 bg-white text-black"/>
                         <button onClick={() => handleSend()}className="bg-white w-8 h-8 rounded-2xl text-black p-1">S</button>
                     </div>
                 </div>}
