@@ -72,5 +72,5 @@ export type TeamReq = {
 export type RoomMsg = {
     player_name: string;
     message: string;
-    avatar_url: string
+    avatar_url?: string
 }

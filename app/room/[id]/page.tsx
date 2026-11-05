@@ -110,7 +110,7 @@ export default async function Page({params, searchParams}: Props){
     }
 
     async function getMessages(roomId: string): Promise<RoomMsg[]> {
-        const messagesReq = await fetch(`${backendUrl}/rooms/messages/${roomId}`)
+        const messagesReq = await fetch(`${backendUrl}/rooms/message/${roomId}`)
         const messagesRes = await messagesReq.json();
 
         if(messagesRes.ok){
@@ -130,6 +130,7 @@ export default async function Page({params, searchParams}: Props){
         })
 
         const sendRes = await sendReq.json()
+        console.log(sendRes)
         return sendRes;
     }
 

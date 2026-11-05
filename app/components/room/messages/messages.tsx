@@ -1,12 +1,15 @@
-import { RoomMsg } from "@/lib/types"
+import { GameRespond, Player, RoomMsg } from "@/lib/types"
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image";
 
 type Props = {
     messages: RoomMsg[];
+    sendMessage: (roomId: string, msg: RoomMsg) => Promise<GameRespond>;
+    roomId: string;
+    player: Player
 }
 
-export default function Messages({messages}: Props){
+export default function Messages({messages, sendMessage, roomId, player}: Props){
     const [showMsg, setShowMsg] = useState<boolean>(false);
     const [pos, setPos] = useState({
         x: 100,
@@ -20,9 +23,9 @@ export default function Messages({messages}: Props){
     const [didDrag, setDidDrag] = useState<boolean>(false);
     const [chatPos, setChatPos] = useState({
         x: "right-0",
-        y: "top-[-65px]"
+        y: "top-[-250px]"
     });
-    const chatRef = useRef<HTMLDivElement>(null);
+    const chatRef = useRef<HTMLInputElement>(null);
 
     function onMouseDown(e: React.MouseEvent) {
         setDragging(true);
@@ -91,47 +94,70 @@ export default function Messages({messages}: Props){
         };
     }
 
+    function handleSend(){
+        const chat = chatRef.current;
+        const chatMsg = chat?.value;
+        if(!chat || !chatMsg) return;
+        let roomMsg: RoomMsg = {
+            player_name: player.name,
+            message: chatMsg
+        }
+
+        if(player.avatar_url){
+            roomMsg = {
+                ...roomMsg,
+                avatar_url: player.avatar_url
+            }
+        }
+        sendMessage(roomId, roomMsg);
+    }
+
     return(
-        <div className={`flex flex-col absolute z-[50]`} style={{left: pos.x, top: pos.y}}>
+        <div className={`flex flex-col fixed z-[50]`} style={{left: pos.x, top: pos.y}}>
             <div className="relative">
                 {showMsg && <div 
                     className={`
                         absolute
                         ${chatPos.x}
                         ${chatPos.y}
-                        h-[250px]
+                        h-fit
+                        min-h-30
+                        max-h-[250px]
                         w-[200px] 
                         overflow-y-scroll 
                         scrollbar-none 
                         border 
                         rounded-xl 
-                        p-3
                         bg-black/30
                         shadow-[var(--shadow)]
                         `}
                         >
-                    {messages.map((msg, i) => (
-                        <div key={i} className="w-[95%] flex gap-5">
-                            <div>
-                                {msg.avatar_url
-                                    ? <div className="flex flex-col">
+                    <div className="mb-30 h-fit max-h-50 overflow-scroll scrollbar-none">
+                        {messages.map((msg, i) => (
+                            <div key={i} className="w-[95%] mx-auto flex items-center gap-5 m-2">
+                                <div>
+                                    <div className="flex flex-col w-[40px]">
                                         <Image
-                                            src={msg.avatar_url}
+                                            src={msg.avatar_url ? msg.avatar_url : "/question-mark-vector-icon.jpg"}
                                             alt="avatar image"
-                                            width={40}
-                                            height={40}
+                                            width={100}
+                                            height={100}
+                                            className="rounded-3xl h-[40px] w-[40px]"
                                         />
-                                        <p>{msg.player_name}</p>
+                                        <p className="text-sm text-center">{msg.player_name}</p>
                                     </div>
-                                    : <div>
-                                        <span>{msg.player_name}</span>
-                                    </div>}
+                                </div>
+                                <div>
+                                    <p className="border p-1 bg-blue-400 rounded-lg flex break-all">{msg.message}</p>
+                                </div>
                             </div>
-                            <div>
-                                <p className="flex break-all">{msg.message}</p>
-                            </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>                    
+                    <div className="absolute bottom-1 flex w-full justify-center">
+                        <button className="bg-white w-8 h-8 rounded-2xl text-black p-1">+</button>
+                        <input ref={chatRef} type="text" className="border rounded-2xl w-30 px-2 bg-white text-black"/>
+                        <button onClick={() => handleSend()}className="bg-white w-8 h-8 rounded-2xl text-black p-1">S</button>
+                    </div>
                 </div>}
                 <div className="flex w-full">
                     <button

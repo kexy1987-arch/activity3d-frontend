@@ -45,7 +45,8 @@ export default function GameRoom({room, player, creator, createTeam, joinTeam, p
             ws.onmessage = (event) => {
                 const data = JSON.parse(event.data);
                 console.log("WS JSON:", data)
-                if(data) {    
+                if(data) {   
+                    console.log("EVENT: ", data.event) 
                     if(data.message){
                         setMsg(data.message);
                     };          
@@ -127,7 +128,7 @@ export default function GameRoom({room, player, creator, createTeam, joinTeam, p
 
     return(
         <div className="flex justify-center">
-            <Messages messages={roomMessages}/>
+            <Messages messages={roomMessages} sendMessage={sendMessage} roomId={room.id} player={player}/>
             <MsgBar msg={msg} setMsg={setMsg} />
             {showCountdown && <div className="w-full h-15 rounded-xl p-3 bg-black/50 absolute top-20 left-[50%] translate-x-[-50%] z-[9999]">
                 <Countdown countdownValue={countdownValue} />
