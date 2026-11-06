@@ -74,3 +74,14 @@ export type RoomMsg = {
     message: string;
     avatar_url?: string
 }
+
+export type PathPos = { 
+    start: number, 
+    start1: number, 
+    start2: number, 
+    step: number, 
+    step1: number, 
+    step2: number, 
+    length: number,
+    counter?: number
+}
