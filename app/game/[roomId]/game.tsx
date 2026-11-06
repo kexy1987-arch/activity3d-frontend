@@ -43,7 +43,7 @@ export default function Game({room, player}: Props){
         step1: 0,
         step2: 1.5,
         length: 74
-    }), true, 19, 1.5);
+    }), true, 15, 1.5);
 
     const grassPatch3 = pathPosRepeater(pathPos({
         start: 0.5,
@@ -65,7 +65,59 @@ export default function Game({room, player}: Props){
         length: 6
     }), true, 4, 1.5);
 
-    
+    const tree1 = [
+        { pos: [-3, 2.6, -46], scale: 2 },
+        { pos: [-12, 2.6, -37], scale: 2 },
+        { pos: [-4, 2.6, -22], scale: 2 },
+        { pos: [-16, 2.6, -16], scale: 2 },
+        { pos: [-18, 2.6, -31], scale: 2 },
+        { pos: [-9, 2.6, -5], scale: 2 },
+        { pos: [-3, 2.6, 2], scale: 2 },
+        { pos: [-12, 2.6, 10], scale: 2 },
+        { pos: [-4, 2.6, 22], scale: 2 },
+        { pos: [-16, 2.6, 16], scale: 2 },
+        { pos: [-18, 2.6, 31], scale: 2 },
+        { pos: [-9, 2.6, 43], scale: 2 },
+        { pos: [-15, 2.6, 0], scale: 2 },
+    ]
+
+    const tree2 = [
+        { pos: [-10, 0, -47], scale: 1 },
+        { pos: [-13, 0, -40], scale: 1 },
+        { pos: [-8, 0, -31], scale: 1 },
+        { pos: [-18, 0, -24], scale: 1 },
+        { pos: [-9, 0, -17], scale: 1 },
+        { pos: [-11, 0, -10], scale: 1 },
+        { pos: [-15, 0, -3], scale: 1 },
+        { pos: [-18, 0, 1], scale: 1 },
+        { pos: [-7, 0, 8], scale: 1 },
+        { pos: [-4, 0, 14], scale: 1 },
+        { pos: [-14, 0, 21], scale: 1 },
+        { pos: [-17, 0, 27], scale: 1 },
+        { pos: [-15, 0, 33], scale: 1 },
+        { pos: [-18, 0, 38], scale: 1 },
+        { pos: [-13, 0, 45], scale: 1 },
+    ]
+
+    const tree6 = [
+        { pos: [-3, 2.9, 49], scale: 2 },
+        { pos: [-4, 2.9, 37], scale: 2 },
+        { pos: [-9, 2.9, 31], scale: 2 },
+        { pos: [-9, 2.9, 20], scale: 2 },
+        { pos: [-5, 2.9, -8], scale: 2 },
+        { pos: [-3, 2.9, -16], scale: 2 },
+        { pos: [-10, 2.9, -25], scale: 2 },
+        { pos: [-4, 2.9, -33], scale: 2 },
+    ]
+
+    const rocks = [
+        { pos: [-2, 0, -38], scale: 1 , rotation: [0, 0, 0]},
+        { pos: [-4, 0, -25], scale: 1, rotation: [0, 0, 0] },
+        { pos: [-3, 0, -4], scale: 1, rotation: [0, 0, 0] },
+        { pos: [-6, 0, 10], scale: 1, rotation: [0, 0, 0] },
+        { pos: [-4, 0, 24], scale: 1, rotation: [0, 0, 0] },
+        { pos: [-3, 0, 40], scale: 1, rotation: [0, 0, 0] },
+    ]
 
     return(
         <div className="border bg-blue-300">
@@ -100,7 +152,7 @@ export default function Game({room, player}: Props){
                     {grassPatch2.map(el => (
                         el.map((pos, i) => (
                             <Models.GrassPatch
-                                key={"grassPatch" + i}
+                                key={"grassPatch2" + i}
                                 position={pos}
                                 rotation={[0, Math.PI / 6.3, 0]}
                             />
@@ -109,7 +161,7 @@ export default function Game({room, player}: Props){
                     {grassPatch3.map(el => (
                         el.map((pos, i) => (
                             <Models.GrassPatch
-                                key={"grassPatch" + i}
+                                key={"grassPatch3" + i}
                                 position={pos}
                                 rotation={[0, Math.PI / 6.3, 0]}
                             />
@@ -118,11 +170,43 @@ export default function Game({room, player}: Props){
                     {grassPatch4.map(el => (
                         el.map((pos, i) => (
                             <Models.GrassPatch
-                                key={"grassPatch" + i}
+                                key={"grassPatch4" + i}
                                 position={pos}
                                 rotation={[0, Math.PI / 6.3, 0]}
                             />
                         ))
+                    ))}
+                    {tree1.map((props, i) => (
+                        <Models.Tree1
+                            key={"tree1" + i}
+                            position={props.pos}
+                            rotation={[0, Math.PI / 6.3, 0]}
+                            scale={props.scale}
+                        />
+                    ))}
+                    {tree2.map((props, i) => (
+                        <Models.Tree2
+                            key={"tree2" + i}
+                            position={props.pos}
+                            rotation={[0, Math.PI / 6.3, 0]}
+                            scale={props.scale}
+                        />
+                    ))}
+                    {tree6.map((props, i) => (
+                        <Models.Tree6
+                            key={"tree6" + i}
+                            position={props.pos}
+                            rotation={[0, Math.PI / 6.3, 0]}
+                            scale={props.scale}
+                        />
+                    ))}
+                    {rocks.map((props, i) => (
+                        <Models.RockMed
+                            key={"rocks" + i}
+                            position={props.pos}
+                            rotation={[0, Math.PI / 6.3, 0]}
+                            scale={props.scale}
+                        />
                     ))}
                     <Models.Man position={[0, 0, -47]} />                
                     <OrbitControls />       

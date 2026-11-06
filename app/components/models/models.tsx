@@ -41,12 +41,6 @@ export function Pine(props: PrimitiveProps) {
     return <primitive object={cloned} {...props} />
 }
 
-export function Tree(props: PrimitiveProps) {
-    const { scene } = useGLTF('/models/tree.glb')
-    const cloned = useMemo(() => SkeletonUtils.clone(scene), [scene])
-    return <primitive object={cloned} {...props} />
-}
-
 export function Tree1(props: PrimitiveProps) {
     const { scene } = useGLTF('/models/tree1.glb')
     const cloned = useMemo(() => SkeletonUtils.clone(scene), [scene])
@@ -130,15 +124,4 @@ export function RockPathSmall(props: PrimitiveProps) {
     const cloned = useMemo(() => SkeletonUtils.clone(scene), [scene])
     return <primitive object={cloned} {...props} />
 }
-
-export function ground(args: [number | undefined], color: string){
-    return(
-        <mesh receiveShadow>
-            <planeGeometry args={args} />
-            <meshStandardMaterial color={color} />
-        </mesh>
-    )
-    
-}
-
 
