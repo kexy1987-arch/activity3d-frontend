@@ -1,35 +1,12 @@
-import { randomPath } from "@/lib/helpers";
+import { pathPos } from '@/lib/helpers';
 import { expect, test } from 'vitest'
 
 test("Reapeats positions in 2 dimensions", () => {
-    const length = 4;
-    const width = 2;
-    const step = 1;
-    const result = randomPath(length, width, step);
 
-    expect(result.length).toBe(width + 1);
+    const length = 15
+    const start2 = 47
+    const result = pathPos({ start: 0, start1: 0, start2, step: 0, step1: 0, step2: 1, length });
 
-    // inner array size
-    result.forEach(row => {
-        expect(row.length).toBe(length + 1);
-
-        row.forEach(cell => {
-            // pos
-            expect(cell.pos.length).toBe(3);
-            cell.pos.forEach(v => {
-                expect(v).toBeGreaterThanOrEqual(0);
-                expect(v).toBeLessThanOrEqual(2);
-            });
-
-            // scale
-            expect(cell.scale).toBeGreaterThanOrEqual(0.5);
-            expect(cell.scale).toBeLessThanOrEqual(1.2);
-
-            // rotation
-            expect(cell.rotation.length).toBe(3);
-            cell.rotation.forEach(r => {
-                expect(typeof r).toBe('number');
-            });
-        });
-    });
+    expect(result.length).toBe(length);
+    expect(result[result.length -1]).toBe(length + start2);
 })
