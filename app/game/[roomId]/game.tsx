@@ -2,9 +2,15 @@
 
 import { Player, Room } from "@/lib/types"
 import { Canvas } from "@react-three/fiber"
-import * as Models from "@/app/components/models/models"
-import { OrbitControls, Grid, Environment } from "@react-three/drei"
-import { pathPos, pathPosRepeater } from "@/lib/helpers"
+import { Grid, Environment } from "@react-three/drei"
+import { pathPos, pathPosRepeater, randomPathTilted, randomPathFlat } from "@/lib/helpers"
+import { InstancedModel } from "@/app/components/models/InstancedModel"
+import { InstancedMultiMesh } from "@/app/components/models/instanedMultiMeash"
+import { useState, useMemo, useEffect } from "react"
+import { Character } from "@/app/components/models/character"
+import { CharacterProps } from "@/lib/types"
+import { CameraRig } from "./cameraFollow"
+
 
 
 type Props = {
@@ -24,193 +30,103 @@ export default function Game({room, player}: Props){
         step2: 1.9,
         length: 50
     }), true, 4,);
+
+    const grassPositions = useMemo(() => [
+        ...randomPathFlat({ x: -9.5, y: 0, z: -30 }, 17, 120, 1).flat().map(p => p.pos),
+        ...randomPathFlat({ x: 2, y: 0, z: -30 }, 17, 120, 1).flat().map(p => p.pos),
+        ...randomPathFlat({ x: -1, y: 0, z: -30 }, 5, 10, 1).flat().map(p => p.pos),
+        ...randomPathFlat({ x: -1, y: 0, z: 25 }, 5, 10, 1).flat().map(p => p.pos),
+    ], [])
+
+    const rocksPositions = useMemo(() => randomPathFlat({ x: -11.5, y: 0, z: -25 }, 11, 93, 11), [])
+    const rock2Positions = useMemo(() => randomPathFlat({ x: -15, y: 0, z: -25 }, 14, 100, 13), [])
+    const treePosition = useMemo(() => randomPathFlat({ x: -10.5, y: 0, z: -25 }, 17, 100, 10), [])
+    const tree2Positions = useMemo(() => randomPathFlat({ x: -10.5, y: 0, z: -25 }, 17, 100, 10), [])
+    const tree6Positions = useMemo(() => randomPathFlat({ x: -10.5, y: 0, z: -25 }, 17, 100, 10), [])
+    const tiltedRocksPositions = useMemo(() => randomPathTilted({ x: -18, y: 4, z: -30 }, 15, 120, 1), [])
+    const tiltedRocksPositions2 = useMemo(() => randomPathTilted({ x: -20, y: 4, z: -30 }, 15, 120, 1), [])
+    const tiltedTreePositions = useMemo(() => randomPathTilted({ x: -17, y: 3, z: -30, scale: 1, rotate: false }, 12, 120, 4), [])
+    const tiltedTreePositions2 = useMemo(() => randomPathTilted({ x: -18, y: 5, z: -30, scale: 0.6, rotate: false }, 12, 120, 7), [])
+
+
+
+    const [team1, setTeam1] = useState<CharacterProps>({position: [0, 0, 20], animation: "Idle", gender: "man"});
+    const [team2, setTeam2] = useState<CharacterProps>({position: [1, 0, -47], animation: "Idle", gender: "man"});
+    const [team3, setTeam3] = useState<CharacterProps>({position: [2, 0, -47], animation: "Idle", gender: "man"});
+    const [team4, setTeam4] = useState<CharacterProps>({position: [3, 0, -47], animation: "Idle", gender: "man"});
+    const [selectedCharacterId, setSelectedCharacterId] = useState(1);
+    const selectedCharacter = 
+        selectedCharacterId === 1 ? team1 :
+        selectedCharacterId === 2 ? team2 :
+        selectedCharacterId === 3 ? team3 :
+        team4;
     
-    const grassPatch = pathPosRepeater(pathPos({
-        start: -1.5,
-        start1: 0,
-        start2: -55,
-        step: 0,
-        step1: 0,
-        step2: 1.5,
-        length: 74
-    }), true, -19, 1.5);
-
-    const grassPatch2 = pathPosRepeater(pathPos({
-        start: 5,
-        start1: 0,
-        start2: -55,
-        step: 0,
-        step1: 0,
-        step2: 1.5,
-        length: 74
-    }), true, 15, 1.5);
-
-    const grassPatch3 = pathPosRepeater(pathPos({
-        start: 0.5,
-        start1: 0,
-        start2: -55,
-        step: 0,
-        step1: 0,
-        step2: 1.5,
-        length: 5
-    }), true, 4, 1.5);
-
-    const grassPatch4 = pathPosRepeater(pathPos({
-        start: 0.5,
-        start1: 0,
-        start2: 47,
-        step: 0,
-        step1: 0,
-        step2: 1.5,
-        length: 6
-    }), true, 4, 1.5);
-
-    const tree1 = [
-        { pos: [-3, 2.6, -46], scale: 2 },
-        { pos: [-12, 2.6, -37], scale: 2 },
-        { pos: [-4, 2.6, -22], scale: 2 },
-        { pos: [-16, 2.6, -16], scale: 2 },
-        { pos: [-18, 2.6, -31], scale: 2 },
-        { pos: [-9, 2.6, -5], scale: 2 },
-        { pos: [-3, 2.6, 2], scale: 2 },
-        { pos: [-12, 2.6, 10], scale: 2 },
-        { pos: [-4, 2.6, 22], scale: 2 },
-        { pos: [-16, 2.6, 16], scale: 2 },
-        { pos: [-18, 2.6, 31], scale: 2 },
-        { pos: [-9, 2.6, 43], scale: 2 },
-        { pos: [-15, 2.6, 0], scale: 2 },
-    ]
-
-    const tree2 = [
-        { pos: [-10, 0, -47], scale: 1 },
-        { pos: [-13, 0, -40], scale: 1 },
-        { pos: [-8, 0, -31], scale: 1 },
-        { pos: [-18, 0, -24], scale: 1 },
-        { pos: [-9, 0, -17], scale: 1 },
-        { pos: [-11, 0, -10], scale: 1 },
-        { pos: [-15, 0, -3], scale: 1 },
-        { pos: [-18, 0, 1], scale: 1 },
-        { pos: [-7, 0, 8], scale: 1 },
-        { pos: [-4, 0, 14], scale: 1 },
-        { pos: [-14, 0, 21], scale: 1 },
-        { pos: [-17, 0, 27], scale: 1 },
-        { pos: [-15, 0, 33], scale: 1 },
-        { pos: [-18, 0, 38], scale: 1 },
-        { pos: [-13, 0, 45], scale: 1 },
-    ]
-
-    const tree6 = [
-        { pos: [-3, 2.9, 49], scale: 2 },
-        { pos: [-4, 2.9, 37], scale: 2 },
-        { pos: [-9, 2.9, 31], scale: 2 },
-        { pos: [-9, 2.9, 20], scale: 2 },
-        { pos: [-5, 2.9, -8], scale: 2 },
-        { pos: [-3, 2.9, -16], scale: 2 },
-        { pos: [-10, 2.9, -25], scale: 2 },
-        { pos: [-4, 2.9, -33], scale: 2 },
-    ]
-
-    const rocks = [
-        { pos: [-2, 0, -38], scale: 1 , rotation: [0, 0, 0]},
-        { pos: [-4, 0, -25], scale: 1, rotation: [0, 0, 0] },
-        { pos: [-3, 0, -4], scale: 1, rotation: [0, 0, 0] },
-        { pos: [-6, 0, 10], scale: 1, rotation: [0, 0, 0] },
-        { pos: [-4, 0, 24], scale: 1, rotation: [0, 0, 0] },
-        { pos: [-3, 0, 40], scale: 1, rotation: [0, 0, 0] },
-    ]
 
     return(
         <div className="border bg-blue-300">
             <h1>Game</h1>
-            <div className="h-[600px]">
-                <Canvas camera={{position: [1, 5, 47], fov: 10}}>
-                    <Environment preset="park" />
+            <div className="h-[300px]">
+                <Canvas>
+                    <CameraRig position={selectedCharacter.position}/>
+                    <Environment preset="forest" />
                     <directionalLight position={[0, 0, -5]} />
                     <Grid infiniteGrid />
                     <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
                         <planeGeometry args={[40, 112]} />
                         <meshStandardMaterial color="green" />
                     </mesh>
-                    {paths.map(el => (
-                        el.map((pos, i) => (
-                            <Models.RockPathRound 
-                                key={"path" + i} 
-                                position={pos} 
-                             />
-                        ))
-                        
-                    ))}                   
-                    {grassPatch.map(el => (
-                        el.map((pos, i) => (
-                               <Models.GrassPatch 
-                                    key={"grassPatch" + i} 
-                                    position={pos}
-                                    rotation={[0, Math.PI /6.3, 0]}
-                                />
-                        ))
+                    {paths.map((p, i) => (
+                        <InstancedModel key={"path" + i} positions={p} url={"/models/rock_path_round.glb"}/>
                     ))}
-                    {grassPatch2.map(el => (
-                        el.map((pos, i) => (
-                            <Models.GrassPatch
-                                key={"grassPatch2" + i}
-                                position={pos}
-                                rotation={[0, Math.PI / 6.3, 0]}
-                            />
-                        ))
+                    <InstancedModel positions={grassPositions} url={"/models/grass_patch.glb"}/>
+                    {rocksPositions.map((rock, i) => (
+                        <InstancedMultiMesh key={i} items={rock} url={"/models/rock_med2.glb"}/>
                     ))}
-                    {grassPatch3.map(el => (
-                        el.map((pos, i) => (
-                            <Models.GrassPatch
-                                key={"grassPatch3" + i}
-                                position={pos}
-                                rotation={[0, Math.PI / 6.3, 0]}
-                            />
-                        ))
+                    {rock2Positions.map((rock, i) => (
+                        <InstancedMultiMesh key={i} items={rock} url={"/models/rock_med2.glb"} />
                     ))}
-                    {grassPatch4.map(el => (
-                        el.map((pos, i) => (
-                            <Models.GrassPatch
-                                key={"grassPatch4" + i}
-                                position={pos}
-                                rotation={[0, Math.PI / 6.3, 0]}
-                            />
-                        ))
+                    {treePosition.map((tree, i) => (
+                        <InstancedMultiMesh key={i} items={tree} url={"/models/tree1.glb"} />
                     ))}
-                    {tree1.map((props, i) => (
-                        <Models.Tree1
-                            key={"tree1" + i}
-                            position={props.pos}
-                            rotation={[0, Math.PI / 6.3, 0]}
-                            scale={props.scale}
-                        />
+                    {tree2Positions.map((tree, i) => (
+                        <InstancedMultiMesh key={i} items={tree} url={"/models/tree2.glb"} />
                     ))}
-                    {tree2.map((props, i) => (
-                        <Models.Tree2
-                            key={"tree2" + i}
-                            position={props.pos}
-                            rotation={[0, Math.PI / 6.3, 0]}
-                            scale={props.scale}
-                        />
+                    {tree6Positions.map((tree, i) => (
+                        <InstancedMultiMesh key={i} items={tree} url={"/models/tree6.glb"} />
                     ))}
-                    {tree6.map((props, i) => (
-                        <Models.Tree6
-                            key={"tree6" + i}
-                            position={props.pos}
-                            rotation={[0, Math.PI / 6.3, 0]}
-                            scale={props.scale}
-                        />
+                    {tiltedRocksPositions.map((rocks, i) => (
+                        <InstancedMultiMesh key={i} items={rocks} url={"/models/rock_med2.glb"} />
                     ))}
-                    {rocks.map((props, i) => (
-                        <Models.RockMed
-                            key={"rocks" + i}
-                            position={props.pos}
-                            rotation={[0, Math.PI / 6.3, 0]}
-                            scale={props.scale}
-                        />
+                    {tiltedRocksPositions2.map((rocks, i) => (
+                        <InstancedMultiMesh key={i} items={rocks} url={"/models/rock_med2.glb"} />
                     ))}
-                    <Models.Man position={[0, 0, -47]} />                
-                    <OrbitControls />       
+                    {tiltedTreePositions.map((rocks, i) => (
+                        <InstancedMultiMesh key={i} items={rocks} url={"/models/tree1.glb"} />
+                    ))}
+                    {tiltedTreePositions2.map((rocks, i) => (
+                        <InstancedMultiMesh key={i} items={rocks} url={"/models/tree2.glb"} />
+                    ))}
+                    <Character position={team1.position} animation={team1.animation} gender={team1.gender} color={"red"}/>
+                    <Character position={team2.position} animation={team2.animation} gender={team2.gender} color={"green"}/>
+                    <Character position={team3.position} animation={team3.animation} gender={team3.gender} color={"blue"}/>
+                    <Character position={team4.position} animation={team4.animation} gender={team4.gender} color={"yellow"}/>  
                 </Canvas>
+                <button className="bg-black p-2" onClick={() => setTeam1(prev => ({
+                    ...prev,
+                    position: [selectedCharacter.position[0], selectedCharacter.position[1], selectedCharacter.position[2] + 1]
+                }))}>{"<="}</button>
+                <button className="bg-black p-2" onClick={() => setTeam1(prev => ({
+                    ...prev,
+                    position: [selectedCharacter.position[0], selectedCharacter.position[1], selectedCharacter.position[2] - 1]
+                }))}>{"=>"}</button>
+                <button className="bg-black p-2" onClick={() => setTeam1(prev => ({
+                    ...prev,
+                    animation: "Walk"
+                }))}>walk</button>
+                <button className="bg-black p-2" onClick={() => setTeam1(prev => ({
+                    ...prev,
+                    animation: "Idle"
+                }))}>idle</button>
             </div>
         </div>
     )

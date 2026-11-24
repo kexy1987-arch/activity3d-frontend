@@ -85,3 +85,16 @@ export type PathPos = {
     length: number,
     counter?: number
 }
+
+export type WallProps = {
+    pos: [number, number, number],
+    scale: number,
+    rotation: [number, number, number]
+}
+
+export type CharacterProps = {
+    gender: "man" | "woman";
+    position: [number, number, number];
+    animation?: string;
+    color?: string;
+}

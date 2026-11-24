@@ -1,4 +1,4 @@
-import { Team, PathPos } from "./types";
+import { Team, PathPos, WallProps } from "./types";
 
 export function titleCase(str: string): string {
     if(!str) return "";
@@ -60,4 +60,74 @@ export function pathPosRepeater(pathPos: [number, number, number][], xOrY: boole
         multiplied.push(updated)
     }
     return multiplied
+}
+
+function randFloat(min: number, max: number): number {
+    return Math.random() * (max - min) + min;
+}
+
+function randRotate(): number{
+    return Math.random() * Math.PI * 2;
+}
+
+
+export function randomPathTilted({x= 1, y= 1, z= 1, scale = 0, rotate = true}, length: number, width: number, step = 1): WallProps[][]{
+    const results: WallProps[][] = [];
+    for(let j = z; j <= z + width; j += step){
+
+        const lengthOutput: WallProps[] = [];
+
+        for (let i = x; i <= x + length; i += step) {
+        
+            const props: WallProps = {
+                pos: [
+                    randFloat(x + i, x + i + step),
+                    randFloat((y + i) * -1, (y + i + step) * -1),
+                    randFloat(z + j, z + j + step)
+                ],
+                scale: scale === 0 ? randFloat(0.5, 1.2) : scale,
+                rotation: [
+                    rotate ? randRotate() : 0,
+                    rotate ? randRotate() : 0,
+                    rotate ? randRotate() : 0
+                ]
+            }
+        
+            lengthOutput.push(props);
+        }
+        
+        results.push(lengthOutput);
+    }
+    return results;
+}
+
+
+export function randomPathFlat({ x = 1, y = 1, z = 1}, length: number, width: number, step = 1): WallProps[][] {
+    const results: WallProps[][] = [];
+    for (let j = z; j <= z + width; j += step) {
+
+        const lengthOutput: WallProps[] = [];
+
+        for (let i = x; i <= x + length; i += step) {
+
+            const props: WallProps = {
+                pos: [
+                    randFloat(x + i, x + i + step),
+                    randFloat((y), (y)),
+                    randFloat(z + j, z + j + step)
+                ],
+                scale: randFloat(0.5, 1.2),
+                rotation: [
+                    0,
+                    randRotate(),
+                    0
+                ]
+            }
+
+            lengthOutput.push(props);
+        }
+
+        results.push(lengthOutput);
+    }
+    return results;
 }
