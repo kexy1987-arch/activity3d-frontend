@@ -3,16 +3,16 @@ import { JSX, useRef } from "react"
 import { SkeletonUtils } from "three/examples/jsm/Addons.js"
 import { useMemo, useEffect } from "react"
 import * as THREE from "three";
-import { Group } from "three/examples/jsm/libs/tween.module.js";
-import { group } from "console";
 import { useFrame } from "@react-three/fiber";
 
 type PrimitiveProps = Omit<JSX.IntrinsicElements['primitive'], 'object'>
 
 
-export function Man({ animation = "Idle", color, ...props }: PrimitiveProps & { animation?: string, color?: string }) {
+export function Man({animation = "Idle", color, position, ...props }: PrimitiveProps & { animation?: string, color?: string, position: React.RefObject<[number, number, number]> }) {
     const { scene, animations } = useGLTF('/models/man.glb')
-    const groupRef = useRef<Group>(null);
+    const groupRef = useRef<THREE.Group>(null);
+    const target = useRef(new THREE.Vector3());
+    const direction = useRef(new THREE.Vector3);
     const cloned = useMemo(() => {
         const c = SkeletonUtils.clone(scene);
         if(color){
@@ -41,23 +41,72 @@ export function Man({ animation = "Idle", color, ...props }: PrimitiveProps & { 
         return c;
 
     }, [scene, color])
-    
-    const { actions } = useAnimations(animations, cloned);
 
     useEffect(() => {
-        Object.values(actions).forEach(a => a!.stop())
+        if (!groupRef.current) return;
 
-        const action = actions[`CharacterArmature|${animation}`]
-        if (action) {
-            action.reset().fadeIn(0.3).play()
+        groupRef.current.position.set(
+            position.current[0],
+            position.current[1],
+            position.current[2]
+        );
+    }, [])
+    
+    const { actions } = useAnimations(animations, cloned);
+    const movingRef = useRef(false);
+
+    useEffect(() => {
+        actions["CharacterArmature|Idle"]
+            ?.reset()
+            .fadeIn(0.3)
+            .play();
+    }, [actions]);
+
+    useFrame((_, delta) => {
+        if (!groupRef.current || !position.current) return;
+
+        target.current.set(...position.current);
+
+        direction.current.subVectors(target.current, groupRef.current.position);
+
+        const distance = direction.current.length();
+        const moving = distance > 0.3;
+
+        if(moving) {
+            direction.current.normalize();
+
+            const speed = 1;
+            const step = speed * delta;
+
+            groupRef.current.position.add(
+                direction.current.multiplyScalar(Math.min(step, distance))
+            );
         }
 
-    }, [animation])
+        if (moving !== movingRef.current) {
+            movingRef.current = moving;
 
-    useFrame((_, delta)=> {
-        if(!groupRef.current) return;
-        
-    })
+            const idle = actions["CharacterArmature|Idle"];
+            const walk = actions["CharacterArmature|Walk"];
+
+            if (moving) {
+                idle?.fadeOut(0.2);
+
+                walk
+                    ?.reset()
+                    .fadeIn(0.2)
+                    .play();
+            } else {
+                walk?.fadeOut(0.2);
+
+                idle
+                    ?.reset()
+                    .fadeIn(0.2)
+                    .play();
+            }
+        }
+    });
+
 
     return (
         <group ref={groupRef}>

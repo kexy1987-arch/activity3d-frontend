@@ -5,33 +5,34 @@ import { useRef } from "react"
 
 
 type Rig = {
-    position: [number, number, number]
+    position: React.RefObject<[number, number, number]>
 }
 
 export function CameraRig({position}: Rig) {
     const characterPos = useRef(new Vector3());
     const desiredPos = useRef(new Vector3());
-    const offSet =  useRef(new Vector3(3, 2, 0));
+    const offSet =  useRef(new Vector3(5, 3, 2));
     const lookAtPos = useRef(new Vector3());
 
     useFrame((state, delta) => {
 
         if(!position) return; 
-        characterPos.current.set(...position);
+        characterPos.current.set(...position.current);
         desiredPos.current.copy(characterPos.current).add(offSet.current);
 
         easing.damp3(
             state.camera.position, 
             desiredPos.current, 
-            5, 
-            delta);
+            1, 
+            delta
+        );
 
         easing.damp3(
             lookAtPos.current,
             characterPos.current,
-            0.05,
+            1,
             delta
-        )
+        );
         
         state.camera.lookAt(lookAtPos.current);
     })

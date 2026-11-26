@@ -54,6 +54,7 @@ export type Team = {
     color: string;
     players: Player[];
     ready: boolean;
+    position: [number, number, number];
 }
 
 export type GameRespond = {
@@ -94,7 +95,7 @@ export type WallProps = {
 
 export type CharacterProps = {
     gender: "man" | "woman";
-    position: [number, number, number];
+    position: React.RefObject<[number, number, number]>;
     animation?: string;
     color?: string;
 }
